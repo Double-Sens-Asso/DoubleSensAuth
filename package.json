@@ -1,18 +1,24 @@
 {
-  "name": "demo",
-  "version": "0.0.0",
-  "private": "true",
-  "main": "server.js",
+  "name": "dsauthentificator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "mocha --exit tests/*",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-  "license": "MIT",
-  "devDependencies": {
-    "mocha": "^10.2.0",
-    "supertest": "^6.3.4"
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/0xMaxime/dsauthentificator.git"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/0xMaxime/dsauthentificator/issues"
+  },
+  "homepage": "https://gitlab.com/0xMaxime/dsauthentificator#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "discord.js": "^14.19.3"
   }
 }
