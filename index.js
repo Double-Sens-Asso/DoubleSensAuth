@@ -1,72 +1,60 @@
-/**
- * @file index.js
- * @brief Discord bot for validating user emails against a Google Sheet and managing role assignment.
- *
- * This bot listens for user messages containing emails, verifies the email in a Google Sheet,
- * checks if the email has already been used, and assigns roles accordingly. Messages are deleted
- * after processing to ensure privacy.
- */
-
+const { Client, GatewayIntentBits, Partials } = require("discord.js");
+const { handleMessage } = require("./discord");
 require("dotenv").config();
-const { sendMessage } = require('./discord.js');
-const { Client, GatewayIntentBits } = require("discord.js");
-const { checkMessage } = require('./checkmessage.js');
-const { checkEmail, markEmailUsed } = require('./nocodb');
+
+// 🔐 Création du client Discord avec les bons intents
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
-  ]
+    GatewayIntentBits.DirectMessages
+  ],
+  partials: [Partials.Channel] // Obligatoire pour capter les MP
 });
 
-client.once('ready', () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+// ✅ Connexion réussie
+client.once("ready", () => {
+  console.log(`✅ Bot connecté en tant que ${client.user.tag}`);
 });
 
-/**
- * Handle user message: extract email, verify against Google Sheet,
- * assign role if valid and update the sheet accordingly.
- * @param {Message} message - Discord message object
- */
-async function handleMessage(message) {
-  console.log('🛠️ Processing message:', message.content);
-
-  const mail = checkMessage(message);
-  if (!mail) {
-    console.log('❌ No valid email detected');
-    await message.reply("❌ Email invalide.");
-    return;
-  }
-
-  setTimeout(() => {
-    message.delete().catch(() => {});
-  }, 5000);
-}
-
-
-
-
-client.on('messageCreate', async (message) => {
+// 🔍 Lorsqu'un message est reçu
+client.on("messageCreate", async (message) => {
+  // ❌ Ignorer les messages des bots
   if (message.author.bot) return;
 
-
-  if (message.channelId !== process.env.CHANNELID) {
-    return;
-  }
-
-
-
-  console.log('----------------------------------------------------------');
-  await handleMessage(message);
+  // 💬 Si le message est dans le salon de démarrage (channel public spécifique)
+  if (message.channel.type === 0 && message.channel.id === process.env.CHANNELID) {
     try {
-    await message.delete();
-    console.log('🗑️ Message deleted for confidentiality');
-  } catch (err) {
-    console.error("⚠️ Failed to delete message:", err);
+      // 📢 Introduction + consigne de vérification par MP
+      await message.reply(
+        "👋 Bonjour ! Pour valider ton inscription, suis les instructions ci-dessous.\n\n" +
+        "📬 **Active les messages privés (MP)** si ce n'est pas déjà fait :\n" +
+        "clic droit sur le serveur > Paramètres de confidentialité > activer \"Autoriser les messages privés\".\n\n" +
+        "📨 Ensuite, **réponds à ce message en MP avec ton adresse email** utilisée lors de l'inscription."
+      );
+
+      // 🚫 Si MP impossible, message d'erreur en public
+      await message.author.send("👋 Salut ! Envoie-moi ton email ici pour être validé.");
+      console.log("✅ MP envoyé");
+    } catch (err) {
+      console.warn("❌ Impossible d'envoyer un MP :", err.message);
+      await message.reply("⚠️ Je n'ai pas pu t'envoyer de message privé. Active-les dans tes paramètres Discord puis renvoie un message ici.");
+    }
   }
-  console.log('----------------------------------------------------------');
+
+  // 📧 Si le message est en MP (type DM)
+  if (message.channel.type === 1) {
+    console.log("----------------------------------------------------------");
+    try {
+      await handleMessage(message);
+    } catch (err) {
+      console.error("💥 Erreur dans handleMessage :", err.message);
+      await message.author.send("❌ Une erreur est survenue pendant le traitement. Merci de réessayer plus tard.");
+    }
+    console.log("----------------------------------------------------------");
+  }
 });
 
 client.login(process.env.TOKEN);
