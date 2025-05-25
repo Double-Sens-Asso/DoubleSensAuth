@@ -1,7 +1,7 @@
 import { checkEmail, markEmailUsed } from "./nocodb.js";
 import { checkMessage }              from "./checkmessage.js";
 import { logPerUser }                from "./logger.js";
-
+import { isRateLimited } from "./ratelimit.js";
 export async function handleMessage(message, client) {
   const now   = new Date().toLocaleString("fr-FR");
   const email = checkMessage(message) || "";
@@ -11,6 +11,15 @@ export async function handleMessage(message, client) {
     Contenu:     message.content,
     Email:       email || "[invalide]"
   };
+
+
+
+  if (isRateLimited(message.author.id)) {
+    await message.author.send("🚫 Trop de tentatives. Réessaie plus tard.");
+    await logPerUser("[BLOQUÉ] Trop de tentatives", { Date: now }, client, message.author);
+    return;
+  }
+
 
   if (!email) {
     details.Statut = "Email invalide";

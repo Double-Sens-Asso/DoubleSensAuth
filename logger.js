@@ -8,6 +8,11 @@
  * @param {import("discord.js").Client} client
  * @param {import("discord.js").User} user
  */
+
+function maskSensitive(text) {
+  return text.replace(/[\w.-]+@[\w.-]+\.\w+/g, "[email masqué]");
+}
+
 export async function logPerUser(title, details, client, user) {
   try {
     const forum = await client.channels.fetch(process.env.LOG_FORUM_ID);
@@ -16,9 +21,13 @@ export async function logPerUser(title, details, client, user) {
     }
 
     // Construire le corps du message
-    const body = Object.entries(details)
-      .map(([k, v]) => `**${k}**: ${v}`)
-      .join("\n");
+
+    const maskedDetails = Object.fromEntries(
+    Object.entries(details).map(([k, v]) => [k, typeof v === "string" ? maskSensitive(v) : v])
+  );
+const body = Object.entries(maskedDetails)
+  .map(([k, v]) => `**${k}**: ${v}`)
+  .join("\n");
 
     // Chercher un thread existant pour cet utilisateur
     const threadName = `Logs ${user.tag}`;
