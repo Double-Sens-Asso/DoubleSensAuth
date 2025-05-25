@@ -1,0 +1,39 @@
+# 📦 Changelog — DSAuthentificator
+
+Toutes les modifications notables de ce projet sont documentées ici.
+
+---
+
+## [1.0.0] – 2025-05-25
+
+🎉 Version stable initiale
+
+### ✨ Ajouts
+- ✅ Authentification des membres par email via DM.
+- 🧠 Vérification croisée avec une base NocoDB (email et Discord ID).
+- 🛡️ Protection anti-usurpation (1 seul email par Discord / 1 seul Discord par email).
+- 🎭 Masquage automatique des emails dans les logs.
+- 🧵 Système de logs avancé par utilisateur dans un salon forum Discord.
+- 🤖 Attribution automatique de rôle après validation.
+- 📥 Invitation automatique en MP depuis un canal dédié.
+- 📦 Dockerisation prête via `Dockerfile` et `docker-compose.yml`.
+- 🔐 Fichier `.env.template` prêt pour la production.
+
+### 🐛 Corrections
+- Suppression des risques d’écrasement de champs NocoDB spéciaux (email, tel).
+- Correction des encodages spéciaux dans les URLs d’API v2 NocoDB.
+- Correction du bug `DiscordAPIError[50001]: Missing Access` lors des logs dans un forum.
+
+---
+
+## [0.9.0-beta] – 2025-05-24
+
+🚧 Version de test non publique
+
+### Ajouts
+- Base du bot Discord (connexion, gestion MP, réponse).
+- Connexion à une API NocoDB.
+- Vérification d'email.
+
+---
+
