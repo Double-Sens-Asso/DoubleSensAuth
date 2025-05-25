@@ -1,13 +1,10 @@
-const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-
 /**
- * Extrait et renvoie le premier email valide du contenu, sinon null
- * @param {Message} message
+ * Extrait une adresse email valide d’un message texte.
+ * @param {import("discord.js").Message} message
  * @returns {string|null}
  */
-function checkMessage(message) {
-  const match = message.content.match(EMAIL_REGEX);
+export function checkMessage(message) {
+  const regex = /[\w.-]+@[\w.-]+\.\w+/g;
+  const match = message.content.match(regex);
   return match ? match[0].toLowerCase() : null;
 }
-
-export default { checkMessage };

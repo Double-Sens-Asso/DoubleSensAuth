@@ -1,37 +1,24 @@
-const axios = require("axios");
-require("dotenv").config();
+// 📁 nocodb.js (ESM)
+import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
-// 🔧 Variables d'environnement
-const BASE_URL   = process.env.NOCODB_API_URL.replace(/\/+$/, ""); // Retire les / finaux
-const TABLE_ID   = process.env.NOCODB_TABLE_NAME_ID;               // ID de la table (ex: m72opw56u1t02vw)
-const API_TOKEN  = process.env.NOCODB_API_TOKEN;
-const FIELD_NAME = process.env.FIELDS || "mailMembre";            // Colonne email
+const BASE_URL = process.env.NOCODB_API_URL.replace(/\/+$/, "");
+const TABLE_ID = process.env.NOCODB_TABLE_NAME_ID;
+const API_TOKEN = process.env.NOCODB_API_TOKEN;
+const FIELD_NAME = process.env.FIELDS || "mailMembre";
 
-// 🧾 Headers communs pour toutes les requêtes
 const headers = {
   "xc-token": API_TOKEN,
   "Content-Type": "application/json"
 };
 
 /**
- * 🔍 Vérifie si un email existe dans la table, et s’il est déjà utilisé
- * @param {string} email 
- * @returns {Promise<{ found: boolean, used: boolean, record?: object }>}
+ * Vérifie si un email existe et si un DiscordID est déjà utilisé
  */
-/**
- * 🔍 Vérifie si un email est en base et si un DiscordID est déjà utilisé
- * @param {string} email 
- * @param {string} discordId 
- * @returns {Promise<{ found: boolean, used: boolean, record?: object, discordUsed: boolean }>}
- */
-async function checkEmail(email, discordId) {
+export async function checkEmail(email, discordId) {
   const cleaned = email.trim().toLowerCase();
-
-  // Vérification email
   const urlEmail = `${BASE_URL}/api/v2/tables/${TABLE_ID}/records?where=(${FIELD_NAME},eq,${cleaned})&limit=1`;
-  console.log("🔍 GET →", urlEmail);
-
-  // Vérification DiscordID
   const urlDiscord = `${BASE_URL}/api/v2/tables/${TABLE_ID}/records?where=(DiscordID,eq,${discordId})&limit=1`;
 
   try {
@@ -59,33 +46,20 @@ async function checkEmail(email, discordId) {
   }
 }
 
-
 /**
- * ✅ Marque l'email comme utilisé (Discord = "Oui")
- * @param {string} email 
- * @returns {Promise<boolean>}
+ * Marque l'email comme utilisé dans NocoDB
  */
-async function markEmailUsed(email,message) {
+export async function markEmailUsed(email, message) {
   const { found, used, discordUsed, record } = await checkEmail(email, message.author.id);
 
-  if (!found || !record?.Id) {
-    console.warn(`⚠️ Enregistrement introuvable ou Id manquant pour : ${email}`);
-    return false;
-  }
-
-  if (used) {
-    console.warn("⚠️ Email déjà marqué comme utilisé");
-    return false;
-  }
-
+  if (!found || !record?.Id) return false;
+  if (used) return false;
   if (discordUsed) {
-    console.warn("❌ Ce compte Discord est déjà associé à un autre compte.");
-    await message.author.send("❌ Ton compte Discord a déjà été utilisé pour valider un autre email.");
+    await message.author.send("❌ Ton compte Discord est déjà lié à un autre email.");
     return false;
   }
 
-
-  const payload = [{ Id: record.Id, Discord: "Oui", DiscordID: message.author.id  }];
+  const payload = [{ Id: record.Id, Discord: "Oui", DiscordID: message.author.id }];
   const url = `${BASE_URL}/api/v2/tables/${TABLE_ID}/records`;
 
   console.log("🔗 PATCH →", url);
@@ -93,12 +67,9 @@ async function markEmailUsed(email,message) {
 
   try {
     await axios.patch(url, payload, { headers });
-    console.log(`✅ Mise à jour réussie sur Id=${record.Id}`);
     return true;
   } catch (err) {
     console.error("❌ markEmailUsed error:", err.response?.data || err.message);
     return false;
   }
 }
-
-export default { checkEmail, markEmailUsed };
