@@ -1,10 +1,5 @@
-/**
- * Extrait une adresse email valide d’un message texte.
- * @param {import("discord.js").Message} message
- * @returns {string|null}
- */
+// 📁 checkmessage.js
 export function checkMessage(message) {
-  const regex = /[\w.-]+@[\w.-]+\.\w+/g;
-  const match = message.content.match(regex);
-  return match ? match[0].toLowerCase() : null;
+  const m = message.content.match(/\b[\w.-]+@[\w.-]+\.[A-Za-z]{2,}\b/);
+  return m ? m[0] : null;
 }

@@ -1,11 +1,9 @@
-// 📁 index.js (ESM)
 import { Client, GatewayIntentBits } from "discord.js";
-import { handleMessage } from "./discord.js";
-import dotenv from "dotenv";
-
+import { handleMessage }            from "./discord.js";
+import { logPerUser }               from "./logger.js";
+import dotenv                       from "dotenv";
 dotenv.config();
 
-// Création du bot avec les permissions nécessaires
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -16,38 +14,72 @@ const client = new Client({
   ],
 });
 
-// Connexion réussie
 client.once("ready", () => {
-  console.log(`✅ Bot connecté en tant que ${client.user.tag}`);
+  logPerUser(
+    "[INFO] Bot démarré",
+    {
+      Date:   new Date().toLocaleString("fr-FR"),
+      Statut: "Bot opérationnel"
+    },
+    client,
+    client.user
+  );
 });
 
-// Message reçu
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
-  // Si c'est dans le canal public configuré
+  const now = new Date().toLocaleString("fr-FR");
+  const base = {
+    Date:    now,
+    Contenu: message.content
+  };
+
+  // Canal d'inscription
   if (message.guild && message.channelId === process.env.CHANNELID) {
     try {
-      await message.author.send(
-        "👋 Bienvenue ! Pour valider ton compte, réponds simplement à ce message avec **ton adresse email**.\n\nℹ️ *Active les messages privés ici : `Paramètres > Confidentialité > Autoriser les MP du serveur`*"
-      );
-      await message.reply("📩 Regarde tes messages privés !");
-    } catch (err) {
-      console.error("❌ Impossible d'envoyer le MP :", err.message);
-      await message.reply("❌ Active les messages privés dans tes paramètres Discord.");
-    }
+      await message.author.send("👋 Réponds à ce MP avec ton email pour valider.");
+      await message.reply("📩 J’ai envoyé un MP !");
+    } catch {/* ignore */ }
+
+    await logPerUser(
+      "[INSCRIPTION] Invitation MP",
+      {
+        ...base,
+        Utilisateur: message.author.tag,
+        Canal:       message.channel.name
+      },
+      client,
+      message.author
+    );
     return;
   }
 
-  // Si c'est en message privé
+  // MP privé → log + traitement
   if (!message.guild) {
-    console.log("----------------------------------------------------------");
+    await logPerUser(
+      "[MP] Message privé reçu",
+      {
+        ...base,
+        Utilisateur: message.author.tag,
+        "Message privé": "Oui"
+      },
+      client,
+      message.author
+    );
     try {
-      await handleMessage(message);
+      await handleMessage(message, client);
     } catch (err) {
-      console.error("💥 Erreur dans handleMessage :", err.message);
+      await logPerUser(
+        "[ERREUR] handleMessage",
+        {
+          Date:    now,
+          Erreur:  err.message
+        },
+        client,
+        message.author
+      );
     }
-    console.log("----------------------------------------------------------");
   }
 });
 
