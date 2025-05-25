@@ -1,0 +1,36 @@
+# ========= Discord Bot Configuration =========
+
+# 🔐 Token du bot Discord
+DISCORD_TOKEN=PASTE_YOUR_DISCORD_BOT_TOKEN_HERE
+
+# 🛠️ ID du canal Discord pour déclencher l'inscription (ex: #validation)
+CHANNELID=PASTE_CHANNEL_ID_HERE
+
+# 🧑‍🎓 ID du rôle à attribuer après validation
+ROLE_ID=PASTE_ROLE_ID_HERE
+
+# 🏠 ID du serveur Discord (GUILD)
+GUILD_ID=PASTE_GUILD_ID_HERE
+
+# 🧾 ID du salon forum utilisé pour les logs
+LOG_FORUM_ID=PASTE_FORUM_CHANNEL_ID_HERE
+
+# ========= NocoDB Configuration =========
+
+# 🔐 Token d'API admin NocoDB
+NOCODB_API_TOKEN=PASTE_NOCODB_API_TOKEN_HERE
+
+# 🌐 URL d’accès à l’API NocoDB (ex: http://localhost:8080)
+NOCODB_API_URL=http://your-nocodb-domain-or-ip:8080
+
+# 🗃️ Nom de la base de données logique dans NocoDB (non requis si TABLE_ID utilisé)
+BASE_NAME=Doublesens
+
+# 📋 ID de la table NocoDB (visible dans l’URL ou via l’API)
+NOCODB_TABLE_NAME_ID=PASTE_NOCODB_INTERNAL_TABLE_ID
+
+# 📧 Colonne utilisée pour l’e-mail
+FIELDS=mailMembre
+
+# 🏷️ Nom lisible de la table (optionnel)
+NOCODB_TABLE_NAME_LITTERAL=Membres
