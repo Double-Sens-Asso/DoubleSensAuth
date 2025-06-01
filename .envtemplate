@@ -34,3 +34,5 @@ FIELDS=mailMembre
 
 # 🏷️ Nom lisible de la table (optionnel)
 NOCODB_TABLE_NAME_LITTERAL=Membres
+
+NOCODB_PAIEMENT_COLONNE_ID=c4tgikh8wbr20cm
