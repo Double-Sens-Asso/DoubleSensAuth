@@ -36,3 +36,14 @@ FIELDS=mailMembre
 NOCODB_TABLE_NAME_LITTERAL=Membres
 
 NOCODB_PAIEMENT_COLONNE_ID=c4tgikh8wbr20cm
+
+# 🗂️ NOM DE LA TABLE
+STATUS_FIELD_NAME=FIELDNAME
+
+# ========= Server Configuration =========
+# 🌐 Port sur lequel le serveur écoute
+PORT=3000
+
+# ========= Webhook Configuration =========
+# PASSWORD pour le webhook NocoDB (pour les appels API sécurisés)
+NOCODB_WEBHOOK_TOKEN=SECRETCODE
