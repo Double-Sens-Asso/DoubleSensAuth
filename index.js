@@ -39,13 +39,17 @@ client.on("messageCreate", async (message) => {
 
   const now = new Date().toLocaleString("fr-FR");
   const base = { Date: now, Contenu: message.content };
+  
 
   // ─── 1. Message dans le canal d'inscription ─────────────────
   if (message.guild && message.channelId === process.env.CHANNELID) {
     try {
       await message.author.send("👋 Réponds à ce MP avec ton email pour valider.");
       const confirmationMsg = await message.reply("📩 J’ai envoyé un MP !");
-      confirmationMessages.set(message.author.id, confirmationMsg);
+      confirmationMessages.set(message.author.id, {
+  channelId: confirmationMsg.channelId,
+  messageId: confirmationMsg.id
+});
       setTimeout(() => confirmationMessages.delete(message.author.id), 15 * 60 * 1000);
     } catch (_) {/* DM fermé */}
 
@@ -71,15 +75,20 @@ client.on("messageCreate", async (message) => {
       message.author
     );
 
-    const previousMsg = confirmationMessages.get(message.author.id);
-    if (previousMsg) {
-      try {
-        await previousMsg.delete();
-        confirmationMessages.delete(message.author.id);
-      } catch (err) {
-        console.error("Erreur suppression message d’inscription :", err);
+      const info = confirmationMessages.get(message.author.id);
+      if (!info) {
+        console.warn("⚠️ Aucun message enregistré à supprimer pour cet utilisateur.");
+      } else {
+        try {
+          const channel = await client.channels.fetch(info.channelId);
+          const msgToDelete = await channel.messages.fetch(info.messageId);
+          await msgToDelete.delete();
+          console.log("✅ Message supprimé avec succès:", info);
+          confirmationMessages.delete(message.author.id);
+        } catch (err) {
+          console.error("❌ Erreur lors de la suppression via fetch:", err);
+        }
       }
-    }
     try {
       await handleMessage(message, client);
     } catch (err) {
