@@ -7,6 +7,7 @@ import { logPerUser } from "./logger.js";
 import { handleExpiration } from "./syncRoles.js";
 
 dotenv.config();
+const confirmationMessages = new Map(); // userId → message à supprimer
 
 // ────────────────────────────────────────────────────────────
 // Discord client
@@ -43,7 +44,9 @@ client.on("messageCreate", async (message) => {
   if (message.guild && message.channelId === process.env.CHANNELID) {
     try {
       await message.author.send("👋 Réponds à ce MP avec ton email pour valider.");
-      await message.reply("📩 J’ai envoyé un MP !");
+      const confirmationMsg = await message.reply("📩 J’ai envoyé un MP !");
+      confirmationMessages.set(message.author.id, confirmationMsg);
+      setTimeout(() => confirmationMessages.delete(message.author.id), 15 * 60 * 1000);
     } catch (_) {/* DM fermé */}
 
     await logPerUser(
@@ -52,8 +55,12 @@ client.on("messageCreate", async (message) => {
       client,
       message.author
     );
+
+    await message.delete();
+
     return;
   }
+
 
   // ─── 2. DM privé : tentative de validation ─────────────────
   if (!message.guild) {
@@ -64,6 +71,15 @@ client.on("messageCreate", async (message) => {
       message.author
     );
 
+    const previousMsg = confirmationMessages.get(message.author.id);
+    if (previousMsg) {
+      try {
+        await previousMsg.delete();
+        confirmationMessages.delete(message.author.id);
+      } catch (err) {
+        console.error("Erreur suppression message d’inscription :", err);
+      }
+    }
     try {
       await handleMessage(message, client);
     } catch (err) {
