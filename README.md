@@ -19,25 +19,26 @@ DSAuthentificator est un bot Discord développé pour l'association Double Sens,
 
 Crée un fichier .env à partir du modèle :
 
+--- 
 
 📁 Exemple de fichier .env :
 
-# Token du bot Discord
+*Token du bot Discord*
 DISCORD_TOKEN=...
 
-# ID du canal d’inscription
+ *ID du canal d’inscription*
 CHANNELID=...
 
-# ID du rôle à attribuer
+*ID du rôle à attribuer*
 ROLE_ID=...
 
-# ID du serveur Discord
+*ID du serveur Discord*
 GUILD_ID=...
 
-# ID du salon forum pour les logs
+*ID du salon forum pour les logs*
 LOG_FORUM_ID=...
 
-# NocoDB
+*NocoDB*
 NOCODB_API_TOKEN=...
 NOCODB_API_URL=http://your-nocodb-instance:8080
 NOCODB_TABLE_NAME_ID=...
